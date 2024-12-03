@@ -32,35 +32,35 @@ param = {
 
 # Lấy dữ liệu
 x_train, y_train, x_test, y_test = get_data(param)
-x_test = x_test[:1000]
-y_test = y_test[:1000]
+x_train = x_train[:5000]
+y_train = y_train[:5000]
 
-x_clean = x_test.copy()
-y_clean = y_test.copy()
+x_clean = x_train.copy()
+y_clean = y_train.copy()
 
 # Poisoning frequency
-x_test = poison_frequency(x_test, y_test, param)
+x_train = poison_frequency(x_train, y_train, param)
 
 # Chuyển dữ liệu về tensor và điều chỉnh thứ tự các chiều
-x_test = torch.tensor(x_test, dtype=torch.float32).permute(0, 3, 1, 2).to(device)
-y_test = torch.tensor(y_test, dtype=torch.long).to(device)
+x_train = torch.tensor(x_train, dtype=torch.float32).permute(0, 3, 1, 2).to(device)
+y_train = torch.tensor(y_train, dtype=torch.long).to(device)
 
 # Dự đoán
 # Thử dự đoán ảnh clean ban đầu
 # output = model(torch.tensor(x_clean, dtype=torch.float32).permute(0, 3, 1, 2).to(device))
 # Dự đoán ảnh bị poison
-output = model(x_test)
+output = model(x_train)
 probabilities = torch.nn.functional.softmax(output, dim=1)
 predicted_class = torch.argmax(output, dim=1)
 
-# index = 1
+index = 1
 
-# # Hiển thị ảnh
-# plt.imshow(x_clean[index])
-# plt.show()
+# Hiển thị ảnh
+plt.imshow(x_clean[index])
+plt.show()
 
-# plt.imshow(x_test[index].permute(1, 2, 0).cpu().numpy())
-# plt.show()
+plt.imshow(x_train[index].permute(1, 2, 0).cpu().numpy())
+plt.show()
 
 class_names = [
     "airplane", "automobile", "bird", "cat", "deer",
@@ -70,7 +70,7 @@ class_names = [
 print(f"Predicted Label: {class_names[predicted_class[index].item()]}")
 
 count = 0
-total = 1000
+total = 5000
 for i in range(total):
     if predicted_class[i] == param["target_label"]:
         count += 1
